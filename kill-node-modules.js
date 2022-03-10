@@ -4,12 +4,6 @@ const fs = require("fs");
 const path = require("path");
 const { exec } = require("child_process");
 
-// fs.readdir(".", (err, files) => {
-//   files.map((file) => {
-//     console.log(file, fs.lstatSync(file).isDirectory());
-//   });
-// });
-
 const recursiveReadDir = (pathRead = ".") => {
   fs.readdir(pathRead, (err, files) => {
     files.map((file) => {
@@ -42,11 +36,6 @@ const recursiveReadDir = (pathRead = ".") => {
       ) {
         return recursiveReadDir(path.join(pathRead, file));
       }
-      //   console.log(
-      //     file,
-      //     fs.lstatSync(file).isDirectory(),
-      //     file !== "node_modules"
-      //   );
     });
   });
 };
