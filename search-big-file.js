@@ -2,6 +2,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const { EXCLUDE_FILES_AND_DIRECTORY } = require("./constants");
 
 const searchBigFileRecursive = (pathRead = ".", maximumFileSize) => {
   fs.readdir(pathRead, (err, files) => {
@@ -15,29 +16,25 @@ const searchBigFileRecursive = (pathRead = ".", maximumFileSize) => {
 
     files.map((file) => {
       try {
-        const fileSize = Math.floor(fs.statSync(file).size / (1000 * 1000));
-        if (
-          fs.lstatSync(path.join(pathRead, file)).isDirectory() &&
-          file === ".git"
-        ) {
+        if (EXCLUDE_FILES_AND_DIRECTORY.includes(file)) {
           return;
         }
-        if (
-          fs.lstatSync(path.join(pathRead, file)).isDirectory() &&
-          file !== "node_modules"
-        ) {
+        if (fs.lstatSync(path.join(pathRead, file)).isDirectory()) {
           return searchBigFileRecursive(
             path.join(pathRead, file),
             maximumFileSize
           );
         }
 
+        const fileSize = Math.floor(
+          fs.statSync(path.join(pathRead, file)).size / (1000 * 1000)
+        );
         if (fileSize >= parseInt(maximumFileSize)) {
           console.log(`${path.join(pathRead, file)} is ${fileSize} MB`);
           return;
         }
       } catch (error) {
-        console.log(file, "a", error);
+        console.log(file, " => ", error);
       }
     });
   });
