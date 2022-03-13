@@ -3,6 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 const { exec } = require("child_process");
+const { EXCLUDE_FILES_AND_DIRECTORY } = require("./constants");
 
 const recursiveReadDir = (pathRead = ".") => {
   fs.readdir(pathRead, (err, files) => {
@@ -12,16 +13,17 @@ const recursiveReadDir = (pathRead = ".") => {
 
     files.map((file) => {
       if (
-        fs.lstatSync(path.join(pathRead, file)).isDirectory() &&
-        file === ".git"
+        EXCLUDE_FILES_AND_DIRECTORY.includes(file) &&
+        file !== "node_modules"
       ) {
         return;
       }
-      if (
-        fs.lstatSync(path.join(pathRead, file)).isDirectory() &&
-        file !== "node_modules"
-      ) {
+      if (fs.lstatSync(path.join(pathRead, file)).isDirectory()) {
         return recursiveReadDir(path.join(pathRead, file));
+      }
+
+      if (!fs.existsSync(path.join(pathRead, "node_modules"))) {
+        return;
       }
 
       exec(
