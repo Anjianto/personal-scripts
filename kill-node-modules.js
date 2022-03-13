@@ -6,29 +6,16 @@ const { exec } = require("child_process");
 
 const recursiveReadDir = (pathRead = ".") => {
   fs.readdir(pathRead, (err, files) => {
+    if (err) {
+      throw new Error(err);
+    }
+
     files.map((file) => {
-      if (file === "node_modules") {
-        exec(
-          `rm -fr ${path.join(pathRead, "node_modules")}`,
-          (error, stdout, stderr) => {
-            if (error) {
-              console.log(`error: ${error.message}`);
-              return;
-            }
-            if (stderr) {
-              console.log(`stderr: ${stderr}`);
-              return;
-            }
-            if (stdout) {
-              console.log(`stdout: ${stdout}`);
-              return;
-            }
-            console.log(
-              `Success remove node_modules in ${path.resolve(pathRead)}`
-            );
-            return;
-          }
-        );
+      if (
+        fs.lstatSync(path.join(pathRead, file)).isDirectory() &&
+        file === ".git"
+      ) {
+        return;
       }
       if (
         fs.lstatSync(path.join(pathRead, file)).isDirectory() &&
@@ -36,6 +23,31 @@ const recursiveReadDir = (pathRead = ".") => {
       ) {
         return recursiveReadDir(path.join(pathRead, file));
       }
+
+      exec(
+        `rm -fr ${path.join(pathRead, "node_modules")}`,
+        (error, stdout, stderr) => {
+          if (error) {
+            console.log(`error: ${error.message}`);
+            return;
+          }
+          if (stderr) {
+            console.log(`stderr: ${stderr}`);
+            return;
+          }
+          if (stdout) {
+            console.log(`stdout: ${stdout}`);
+            return;
+          }
+          console.log(
+            `Success remove node_modules in ${path.resolve(
+              pathRead,
+              "node_modules"
+            )}`
+          );
+          return;
+        }
+      );
     });
   });
 };
