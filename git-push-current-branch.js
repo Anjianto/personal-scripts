@@ -8,7 +8,8 @@ exec("git rev-parse --abbrev-ref HEAD", (err, stdout, stderr) => {
   }
 
   if (typeof stdout === "string") {
-    const gitPush = spawn("git", ["push", "origin", stdout.trim()]);
+    const gitPush = spawn("git", ["push", "origin", stdout.trim()], {});
+
     gitPush.stdout.on("data", function (data) {
       console.log(data.toString());
     });
